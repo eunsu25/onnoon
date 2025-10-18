@@ -3,6 +3,9 @@ import 'screens/home_screen.dart';
 import 'screens/guide_screen.dart';
 import 'screens/records_screen.dart';
 import 'screens/analysis_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/signup_screen.dart';
 
 void main() => runApp(const OnNoonApp());
 
@@ -15,12 +18,15 @@ class OnNoonApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'OnNoon',
       theme: ThemeData(useMaterial3: true, fontFamily: 'Inter'),
-      initialRoute: '/', // 여기와 아래 routes의 키 문자열은 네 현재 값 그대로 유지!
+      initialRoute: '/login', 
       routes: {
         '/': (_) => const HomeScreen(),
+        '/login': (_) => const LoginScreen(),
+        '/signup': (_) => const SignupScreen(),
         '/guide': (_) => const GuideScreen(),
         '/records': (_) => const RecordsScreen(),
         '/analysis': (_) => const AnalysisScreen(), // or AnalysisDetailScreen(args)
+        '/settings': (_) => const SettingsScreen(),
       },
     );
   }

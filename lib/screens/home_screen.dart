@@ -13,6 +13,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); // ← Drawer 열기용 키
   int currentFatigueScore = 87;
 
+  bool _isLoggedIn = false;
+
   String _statusMsg(int score) {
     if (score >= 80) return '눈 상태가 매우 좋아요! 😄';
     if (score >= 50) return '눈 상태가 양호해요! 🙂';
@@ -22,8 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openMenu() => _scaffoldKey.currentState?.openEndDrawer();
 
   Future<void> _go(String route) async {
-    Navigator.pop(context); // Drawer 닫기
-    await Future.delayed(const Duration(milliseconds: 150)); // 닫힘 애니 잠깐 대기(부드럽게)
+    if(_scaffoldKey.currentState?.isEndDrawerOpen ?? false) {
+      Navigator.pop(context); // Drawer 닫기
+      await Future.delayed(const Duration(milliseconds: 150)); // 닫힘 애니 잠깐 대기(부드럽게)
+    }
     if (!mounted) return;
     Navigator.pushNamed(context, route);
   }
@@ -86,11 +90,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // ===== 햄버거 메뉴(End Drawer) =====
       endDrawer: _AppMenuDrawer(
+        isLoggedIn: _isLoggedIn,
+        onGoLogin: () => _go('/login'),
         onGoHome:   () => _go('/'),
         onGoGuide:  () => _go('/guide'),
         onGoStats:  () => _go('/records'),     // 네가 쓰는 "기록/그래프" 경로
         onGoAnalysis: () => _go('/analysis'),  // 분석 상세(또는 결과)
         onGoDiagnosis: () => _go('/diagnosis'),// 진단 화면 경로 그대로 사용
+        onGoSettings: () => _go('/settings') // '/settings' 경로는 실제 설정 화면 경로에 맞게 수정
       ),
 
       body: SafeArea(
@@ -291,31 +298,40 @@ class _SectionDivider extends StatelessWidget {
 
 /// 앱 공용 메뉴 드로어
 class _AppMenuDrawer extends StatelessWidget {
+  // 1. 로그인 상태와 로그인 화면으로 이동할 함수를 전달받을 변수 추가
+  final bool isLoggedIn;
+  final VoidCallback onGoLogin;
+  
   final VoidCallback onGoHome;
   final VoidCallback onGoGuide;
   final VoidCallback onGoStats;
   final VoidCallback onGoAnalysis;
   final VoidCallback onGoDiagnosis;
+  final VoidCallback onGoSettings;
 
+  // 2. 생성자 수정
   const _AppMenuDrawer({
+    required this.isLoggedIn,
+    required this.onGoLogin,
     required this.onGoHome,
     required this.onGoGuide,
     required this.onGoStats,
     required this.onGoAnalysis,
     required this.onGoDiagnosis,
+    required this.onGoSettings,
   });
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       elevation: 0,
+      backgroundColor: Colors.white, // 배경색을 흰색으로 지정
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 12),
           children: [
-            const ListTile(
-              title: Text('OnNoon 메뉴', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            ),
+            // 3. 로그인 상태에 따라 다른 위젯을 보여주는 부분 추가
+            isLoggedIn ? _buildProfileSection() : _buildLoginSection(),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.home_outlined),
@@ -325,25 +341,103 @@ class _AppMenuDrawer extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.stacked_line_chart),
               title: const Text('기록 및 통계'),
-              onTap: onGoStats, // '/records'
+              onTap: onGoStats,
             ),
             ListTile(
               leading: const Icon(Icons.analytics_outlined),
               title: const Text('분석 결과'),
-              onTap: onGoAnalysis, // '/analysis'
+              onTap: onGoAnalysis,
             ),
             ListTile(
               leading: const Icon(Icons.self_improvement_outlined),
               title: const Text('맞춤형 회복 가이드'),
-              onTap: onGoGuide, // '/guide'
+              onTap: onGoGuide,
             ),
             ListTile(
               leading: const Icon(Icons.health_and_safety_outlined),
               title: const Text('진단하기'),
-              onTap: onGoDiagnosis, // '/diagnosis'
+              onTap: onGoDiagnosis,
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('설정'),
+              onTap: onGoSettings,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // 로그인되지 않았을 때 보여줄 위젯 (이미지와 유사하게)
+  Widget _buildLoginSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      child: Column(
+        children: [
+          const CircleAvatar(
+            radius: 35,
+            backgroundColor: Color(0xFFF3F3F3),
+            child: Icon(Icons.person, size: 40, color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '로그인이 필요한 서비스입니다.\n로그인/회원가입 후 이용해주세요.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onGoLogin, // 전달받은 함수 사용
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2F43FF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              minimumSize: const Size(180, 44),
+            ),
+            child: const Text(
+              '로그인 / 회원가입',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  // 로그인되었을 때 보여줄 위젯 (추후 확장용)
+  Widget _buildProfileSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      child: Row(
+        children: [
+          const CircleAvatar(
+            radius: 30,
+            backgroundColor: Color(0xFF2F43FF),
+            child: Text(
+              '온눈',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '온눈님',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'eunsu@onnoon.com',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

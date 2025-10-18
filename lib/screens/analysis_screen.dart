@@ -52,7 +52,7 @@ class AnalysisScreen extends StatelessWidget {
 
     final (statusText, statusColor) = _statusOf(result.score);
     final size = MediaQuery.of(context).size;
-    final ringSize = size.width * 0.5;
+    final ringSize = size.width * 0.6;
 
     return Scaffold(
       backgroundColor: Colors.white,

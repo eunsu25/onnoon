@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -91,7 +90,7 @@ def get_latest_record(user_id: int, db: Session = Depends(get_db)):
     return record
     
     return {"fatigue_score": fatigue_score}
-=======
+
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -184,4 +183,3 @@ def get_latest_record(user_id: int, db: Session = Depends(get_db)):
     return record
     
     return {"fatigue_score": fatigue_score}
->>>>>>> 99b0542c81fb76e41b4840c57fc5f3122fa5d378
