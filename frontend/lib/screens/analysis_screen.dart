@@ -9,22 +9,30 @@ class AnalysisResult {
   final double blinkInterval;   // 초
   final int focusHoldSeconds;   // 초
   final Duration totalAnalysis; // 총 분석 시간
+  final String status;
 
   const AnalysisResult({
     required this.score,
     required this.blinkInterval,
     required this.focusHoldSeconds,
     required this.totalAnalysis,
+    required this.status,
   });
 
   // API 응답(JSON)을 AnalysisResult 모델로 변환하는 팩토리 생성자
   factory AnalysisResult.fromJson(Map<String, dynamic> json) {
-    // API 응답 필드 이름이 다를 수 있으므로 확인 필요
+    final double scoreValue = (json['fatigue_score'] as num?)?.toDouble() ?? 0.0;
+    //final double blinkValue = (json['blink_speed'] as num?)?.toDouble() ?? 0.0;
+    final int focusValue = (json['iris_dilation'] as num?)?.toInt() ?? 0;
+
+    final Duration totalDuration = Duration(seconds: focusValue);
+
     return AnalysisResult(
-      score: json['score'] ?? 0,
-      blinkInterval: (json['blink_interval'] ?? 0.0).toDouble(),
-      focusHoldSeconds: json['focus_hold_seconds'] ?? 0,
-      totalAnalysis: Duration(seconds: json['total_analysis_duration'] ?? 0),
+      score: scoreValue.toInt(),
+      blinkInterval: (json['blink_speed'] as num?)?.toDouble() ?? 0.0,
+      focusHoldSeconds: focusValue,
+      totalAnalysis: Duration(seconds: focusValue),
+      status: json['status'] as String? ?? '분석 중',
     );
   }
 }
@@ -54,11 +62,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   // Part 4의 API 호출 로직
   Future<void> _fetchSpecificAnalysisData(String? recordId) async {
     if (recordId == null) {
-      // ID가 없으면 오류 처리 또는 뒤로가기
-      setState(() {
-        _errorMessage = '잘못된 접근입니다.';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = '잘못된 접근입니다. (기록 ID 누락)';
+          _isLoading = false;
+        });
+      }
       return;
     }
 
@@ -78,10 +87,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
 
     // 2. API 호출
-    try {
-      // TODO: API 문서에 나온 '눈 피로도 분석' 엔드포인트로 수정하세요.
-      final url = Uri.parse('https://onnoon.onrender.com/api/fatigue/$recordId');
+    final url = Uri.parse('https://onnoon.onrender.com/api/eye-fatigue/$recordId');
 
+    try{
       final response = await http.get(
         url,
         // 3. 헤더에 토큰 포함!
@@ -173,7 +181,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
 
     if (_result == null) {
-      // 이 경우는 거의 없지만, 안전을 위해
       return Scaffold(
         appBar: _buildAppBar(),
         body: const Center(child: Text('데이터가 없습니다.')),
@@ -182,7 +189,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
     // 'result' 변수가 API에서 온 '_result'를 사용하도록 변경
     final result = _result!;
-
     final (statusText, statusColor) = _statusOf(result.score);
     final size = MediaQuery.of(context).size;
     final ringSize = size.width * 0.6;
