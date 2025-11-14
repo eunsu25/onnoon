@@ -12,16 +12,22 @@ class FatigueRecord {
   final String id; // 각 기록을 식별할 ID (API 응답에 따라 타입 변경 가능, 예: int)
   final DateTime date;
   final int score;
+  final String status;
   // TODO: API 응답에 따라 필요한 다른 필드 추가 (예: condition 문자열)
 
-  FatigueRecord({required this.id, required this.date, required this.score});
+  FatigueRecord({
+    required this.id, 
+    required this.date, 
+    required this.score,
+    required this.status
+  });
 
   factory FatigueRecord.fromJson(Map<String, dynamic> json) {
-    // TODO: 백엔드 API 응답의 실제 필드 이름으로 수정해야 합니다.
     return FatigueRecord(
-      id: json['record_id']?.toString() ?? 'unknown_id', // ID를 String으로 변환
-      date: DateTime.tryParse(json['timestamp'] ?? '') ?? DateTime.now(), // 파싱 실패 시 현재 시간
-      score: json['fatigue_score'] ?? 0,
+      id: json['id']?.toString() ?? 'unknown_id', // ID를 String으로 변환
+      date: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(), // 파싱 실패 시 현재 시간
+      score: (json['fatigue_score'] as num?)?.toInt() ?? 0,
+      status: json['status'] as String? ?? '분석 중',
     );
   }
 }
@@ -72,7 +78,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
     // TODO: API 경로 확인 필요
     // TODO: _period 값에 따라 다른 API를 호출하거나 파라미터를 넘겨야 할 수 있음
-    final url = Uri.parse('https://onnoon.onrender.com/api/fatigue/history');
+    final url = Uri.parse('https://onnoon.onrender.com/api/eye-fatigue/history');
 
     try {
       final response = await http.get(

@@ -6,7 +6,7 @@ import 'screens/analysis_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
-// import 'screens/diagnosis_screen.dart'; // 진단 화면 import 추가 필요
+import 'screens/diagnosis_screen.dart'; // 진단 화면 import 추가 필요
 
 void main() => runApp(const OnNoonApp());
 
@@ -29,7 +29,7 @@ class OnNoonApp extends StatelessWidget {
         '/records': (_) => const RecordsScreen(),
         // '/analysis': (_) => const AnalysisScreen(), // <-- 이 줄은 삭제
         '/settings': (_) => const SettingsScreen(),
-        // '/diagnosis': (_) => const DiagnosisScreen(), // 진단 화면 경로 추가 필요
+        '/diagnosis': (_) => const DiagnosisScreen(), // 진단 화면 경로 추가 필요
       },
       // --- ✅ onGenerateRoute 추가 ---
       onGenerateRoute: (settings) {

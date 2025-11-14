@@ -23,6 +23,7 @@ dependencies:
   url_launcher: ^6.2.1               # 외부 링크 열기용
   percent_indicator: ^4.2.3          # 퍼센트 게이지용 (버전 업데이트)
   intl: ^0.20.2
+  camera: ^0.11.2+1
 
 
 dev_dependencies:
