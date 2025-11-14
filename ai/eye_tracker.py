@@ -7,8 +7,7 @@ from datetime import datetime  # << 시간 기록을 위한 라이브러리 추�
 import requests  # 👈 1. 통신 장비(requests) 불러오기
 
 
-# --- 2. 서버 정보 및 로그인 계정 설정 ---
-# ❗️ 백엔드 팀에게 Render 서버의 정확한 주소를 물어보고 채워넣으세요
+
 BASE_URL = "https://onnoon.onrender.com"  # 예시 주소입니다. 실제 주소로 바꿔야 합니다.
 LOGIN_URL = f"{BASE_URL}/api/auth/login"
 FATIGUE_API_URL = f"{BASE_URL}/api/eye-fatigue/"
