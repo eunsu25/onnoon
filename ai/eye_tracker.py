@@ -1,36 +1,3 @@
-import subprocess
-import sys
-import importlib.util
-
-def install_if_missing(package, module_name=None):
-    """
-    모듈이 없으면 pip install을 실행합니다.
-    package: pip install 이름 (예: opencv-python)
-    module_name: import 이름 (예: cv2). None이면 package 이름과 동일하게 간주
-    """
-    if module_name is None:
-        module_name = package
-        
-    if importlib.util.find_spec(module_name) is None:
-        print(f"필수 모듈 '{package}'이(가) 없어 설치를 시도합니다...")
-        try:
-            # sys.executable: 현재 실행 중인 파이썬을 이용해 pip를 실행
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-            print(f"'{package}' 설치 완료.")
-        except Exception as e:
-            print(f"'{package}' 설치 중 오류 발생: {e}")
-            print("프로그램을 종료합니다. 수동으로 설치해주세요: pip install", package)
-            sys.exit(1) # 오류 시 프로그램 즉시 종료
-    else:
-        print(f"모듈 확인: {module_name} (설치됨)")
-
-# --- 프로그램 시작 시 필수 모듈 검사 ---
-print("--- 필수 라이브러리 확인 중 ---")
-install_if_missing(package="opencv-python", module_name="cv2")
-install_if_missing(package="mediapipe", module_name="mediapipe")
-install_if_missing(package="requests", module_name="requests")
-print("-------------------------------\n")
-
 import cv2
 import mediapipe as mp
 import time
